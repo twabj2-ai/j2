@@ -3,20 +3,97 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>갑부복권 이체 안내</title>
+  <title>복권구입 이체 안내</title>
   <style>
-    body { text-align: center; font-family: 'Pretendard', sans-serif; padding: 50px 20px; }
+    body { 
+      text-align: center; 
+      font-family: 'Pretendard', -apple-system, sans-serif; 
+      padding: 80px 20px; 
+      margin: 0;
+    }
+    h2 {
+      font-size: 36px; 
+      margin-bottom: 60px;
+      line-height: 1.4;
+      word-break: keep-all;
+    }
     .copy-btn { 
-      background-color: #ffd700; color: #000; font-size: 18px; font-weight: bold;
-      padding: 15px 30px; border: none; border-radius: 10px; cursor: pointer; width: 100%; max-width: 300px;
+      background-color: #ffd700; 
+      color: #000; 
+      font-size: 28px; 
+      font-weight: 900;
+      padding: 30px 20px; 
+      border: none; 
+      border-radius: 15px; 
+      cursor: pointer; 
+      width: 100%; 
+      max-width: 400px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15); 
+    }
+    .copy-btn:active {
+      transform: scale(0.98); 
+    }
+
+    /* 커스텀 팝업(모달) 디자인 추가 */
+    .modal-overlay {
+      display: none; /* 처음에는 숨겨둠 */
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.6); /* 반투명 검은 배경 */
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: #fff;
+      padding: 40px 20px 30px;
+      border-radius: 20px;
+      width: 80%;
+      max-width: 320px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+    .modal-text {
+      font-size: 20px;
+      line-height: 1.6;
+      margin-bottom: 30px;
+      word-break: keep-all;
+    }
+    /* 빨간색 두꺼운 텍스트 강조용 클래스 */
+    .highlight-red {
+      color: #e50000; /* 눈에 잘 띄는 빨간색 */
+      font-weight: 900; /* 가장 두꺼운 굵기 */
+    }
+    .close-btn {
+      background-color: #333;
+      color: #fff;
+      font-size: 18px;
+      font-weight: bold;
+      padding: 15px;
+      border: none;
+      border-radius: 10px;
+      width: 100%;
+      cursor: pointer;
+    }
+    .close-btn:active {
+      background-color: #555;
     }
   </style>
 </head>
 <body>
-  <h2>갑부복권<br>이체 전용 계좌</h2>
-  <p>아래 버튼을 눌러 계좌를 복사하신 후,<br>사용하시는 뱅킹 앱을 열어주세요.</p>
+  <h2>복권구입<br>이체 전용 계좌</h2>
   
   <button class="copy-btn" onclick="copyAccount()">계좌번호 복사하기</button>
+
+  <!-- 커스텀 팝업창 HTML 구조 -->
+  <div id="customModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-text">
+        계좌번호가 복사되었습니다.<br><br>
+        사용하시는 <span class="highlight-red">뱅킹 앱</span>을<br>열어주세요.
+      </div>
+      <button class="close-btn" onclick="closeModal()">확인</button>
+    </div>
+  </div>
 
   <script>
     function copyAccount() {
@@ -24,10 +101,16 @@
       const account = "농협 123-4567-8901"; 
       
       navigator.clipboard.writeText(account).then(() => {
-        alert("갑부복권 이체 전용계좌가 복사 되었습니다");
+        // 복사 성공 시 기본 alert 대신 커스텀 팝업창을 띄움
+        document.getElementById('customModal').style.display = 'flex';
       }).catch(err => {
         alert("복사에 실패했습니다. 다시 시도해주세요.");
       });
+    }
+
+    function closeModal() {
+      // 확인 버튼을 누르면 팝업창을 다시 숨김
+      document.getElementById('customModal').style.display = 'none';
     }
   </script>
 </body>
