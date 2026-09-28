@@ -249,7 +249,7 @@
     let targetAppScheme = '';
     let targetAppPackage = '';
     
-    // 은행명과 계좌번호가 포함된 복사할 텍스트
+    // 복사할 텍스트 (은행명 + 계좌번호)
     const copyData = '케이뱅크 100301168768'; 
 
     function prepareTransfer(scheme, androidPackageName) {
@@ -264,74 +264,65 @@
         }
     }
 
+    // [핵심 해결 부분] 복사와 호출을 동시에 실행하여 브라우저 차단 회피
     function executeCopyAndOpen() {
-        if (navigator.clipboard && window.isSecureContext) {
-            navigator.clipboard.writeText(copyData).then(proceedToApp).catch(function() {
-                fallbackCopy();
-            });
-        } else {
-            fallbackCopy();
-        }
-    }
-
-    function fallbackCopy() {
-        var textArea = document.createElement("textarea");
-        textArea.value = copyData;
-        textArea.style.position = "fixed";
-        textArea.style.left = "-9999px";
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-        try {
-            document.execCommand('copy');
-            proceedToApp();
-        } catch (err) {
-            alert('자동 복사에 실패했습니다. 계좌번호를 직접 입력해주세요.');
-            proceedToApp();
-        }
-        document.body.removeChild(textArea);
-    }
-
-    // [핵심 수정 부분] 앱 실행 로직
-    function proceedToApp() {
+        // 1. 모달창 즉시 숨김
         document.getElementById('copyModal').style.display = 'none';
         
         var userAgent = navigator.userAgent.toLowerCase();
         var isAndroid = userAgent.indexOf("android") > -1;
         var isIOS = userAgent.indexOf("iphone") > -1 || userAgent.indexOf("ipad") > -1;
         
-        if (isAndroid) {
-            // 안드로이드 우회 로직: scheme(URI 주소)을 완전히 제거하고 패키지명으로만 강제 실행.
-            // 은행 앱의 딥링크 보안 차단을 우회하여, 바탕화면에서 앱을 켜는 것과 동일하게 동작합니다.
-            var intentUrl = "intent://#Intent;package=" + targetAppPackage + ";end;";
-            window.location.href = intentUrl;
-        } else {
-            // iOS: 기존 방식 유지하되, 화면 숨김 감지(visibilitychange)를 강화하여 오작동 알림 방지
-            var clickedAt = +new Date();
-            var appOpened = false;
+        var cleanScheme = targetAppScheme.replace('://', '');
+        
+        // 안드로이드는 확실한 실행을 위해 표준 Intent 방식 사용
+        var appUrl = isAndroid 
+            ? "intent://#Intent;scheme=" + cleanScheme + ";package=" + targetAppPackage + ";end;" 
+            : targetAppScheme;
 
-            // 앱이 열려서 웹 브라우저가 백그라운드로 가면 appOpened를 true로 변경
-            function onVisibilityChange() {
-                if (document.hidden || document.visibilityState === 'hidden') {
-                    appOpened = true;
+        var clickedAt = +new Date();
+        var appOpened = false;
+
+        // 2. 뱅킹 앱이 켜지면서 브라우저가 뒤로 넘어가는 현상을 3중으로 감지 (오류 알림창 방지)
+        function onAppOpened() { appOpened = true; }
+        window.addEventListener('blur', onAppOpened); // 브라우저가 포커스를 잃음 감지
+        window.addEventListener('pagehide', onAppOpened);
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) appOpened = true;
+        });
+
+        // 3. ★ 가장 중요: 앱 즉시 호출 ★
+        // 복사를 기다리지 않고 버튼을 누르자마자 앱을 먼저 호출해야 브라우저 보안에 걸리지 않습니다.
+        window.location.href = appUrl;
+
+        // 4. 클립보드 복사를 백그라운드에서 동시에 실행
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(copyData).catch(function(){}); // 에러가 나도 앱 실행을 멈추지 않음
+        } else {
+            var textArea = document.createElement("textarea");
+            textArea.value = copyData;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-9999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try { document.execCommand('copy'); } catch (err) {}
+            document.body.removeChild(textArea);
+        }
+
+        // 5. 미설치 체크 (대기 시간을 1.5초 -> 2초로 늘려 구형 휴대폰 로딩 시간 확보)
+        setTimeout(function() {
+            window.removeEventListener('blur', onAppOpened);
+            window.removeEventListener('pagehide', onAppOpened);
+            
+            // 2초가 지났는데도 화면이 넘어가지 않았다면 미설치로 간주
+            if (!appOpened && (+new Date() - clickedAt < 2500)) {
+                if (isAndroid) {
+                    window.location.href = "market://details?id=" + targetAppPackage;
+                } else if (isIOS) {
+                    alert("해당 뱅킹 앱이 설치되어 있지 않거나 브라우저에서 열 수 없습니다.");
                 }
             }
-            document.addEventListener("visibilitychange", onVisibilityChange);
-            window.addEventListener("pagehide", function() { appOpened = true; });
-
-            // 앱 호출 시도
-            window.location.href = targetAppScheme;
-
-            // 1.5초 후 미설치 알림
-            setTimeout(function() {
-                document.removeEventListener("visibilitychange", onVisibilityChange);
-                // 화면이 숨겨진 적이 없고(앱이 열리지 않음), 1.5초가 정상적으로 지났을 때만 알림 발생
-                if (!appOpened && (+new Date() - clickedAt < 2000)) {
-                    if (isIOS) {
-                        alert("해당 뱅킹 앱을 열 수 없습니다. (앱 미설치 또는 애플 보안 정책 차단)");
-                    }
-                }
-            }, 1500);
-        }
+        }, 2000); 
     }
 </script>
