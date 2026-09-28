@@ -233,95 +233,84 @@
     </div>
 </div>
 
-<!-- 팝업 모달창 -->
-<div id="copyModal" class="modal-overlay" onclick="closeModal(event)">
+<!-- 모달(팝업창) HTML 교체 -->
+<div id="copyModal" class="modal-overlay">
     <div class="modal-content">
         <p class="modal-text">
-            복권구매 이체계좌 
-            <span class="account-highlight">케이뱅크 100-301-168768 심x희</span>
+            복권구매 이체계좌 :
+            <span class="account-highlight">케이뱅크 100-301-168768 심재희</span>
             로 송금할까요?
         </p>
-        <button class="confirm-btn" onclick="executeCopyAndOpen()">확인</button>
+        <!-- 버튼 대신 순수 하이퍼링크(a 태그) 사용 -->
+        <a id="confirmLink" href="#" class="confirm-btn" onclick="executeCopy(event)" style="display: block; text-decoration: none; box-sizing: border-box;">확인</a>
+        
+        <!-- 앱이 안 열릴 경우를 대비한 수동 설치 안내 (자동 전환 대신 수동 선택) -->
+        <div style="margin-top: 15px; font-size: 0.8rem;">
+            <a id="storeLink" href="#" style="color: #666; text-decoration: underline;">앱이 실행되지 않나요? (설치하기)</a>
+        </div>
+        
+        <button onclick="closeModal()" style="margin-top: 10px; background: none; border: none; color: #999; text-decoration: underline; padding: 5px; cursor: pointer;">닫기</button>
     </div>
 </div>
 
 <script>
-    let targetAppScheme = '';
-    let targetAppPackage = '';
-    
-    // 복사할 텍스트 (은행명 + 계좌번호)
     const copyData = '케이뱅크 100301168768'; 
 
     function prepareTransfer(scheme, androidPackageName) {
-        targetAppScheme = scheme;
-        targetAppPackage = androidPackageName;
+        var userAgent = navigator.userAgent.toLowerCase();
+        var isAndroid = userAgent.indexOf("android") > -1;
+        
+        var cleanScheme = scheme.replace('://', '');
+        
+        // 1. 확인 버튼(a 태그)의 주소(href)에 뱅킹 앱 스킴을 미리 세팅해 둡니다.
+        var appUrl = isAndroid 
+            ? "intent://#Intent;scheme=" + cleanScheme + ";package=" + androidPackageName + ";end;" 
+            : scheme;
+            
+        // 2. 미설치 시 이동할 스토어 주소 세팅
+        var storeUrl = isAndroid 
+            ? "market://details?id=" + androidPackageName 
+            : "#"; // iOS는 앱마다 고유 ID가 달라 범용 링크 적용이 어려워 제외
+
+        document.getElementById('confirmLink').href = appUrl;
+        
+        if (isAndroid) {
+            document.getElementById('storeLink').href = storeUrl;
+            document.getElementById('storeLink').style.display = 'inline-block';
+        } else {
+            document.getElementById('storeLink').style.display = 'none';
+        }
+
         document.getElementById('copyModal').style.display = 'flex';
     }
 
-    function closeModal(event) {
-        if (event.target.id === 'copyModal') {
-            document.getElementById('copyModal').style.display = 'none';
-        }
+    function closeModal() {
+        document.getElementById('copyModal').style.display = 'none';
     }
 
-    // [핵심 해결] QR코드의 네이티브 링크 인식 방식을 차용한 <a> 태그 강제 클릭 로직 적용
-    function executeCopyAndOpen() {
-        // 1. 모달창 즉시 숨김
-        document.getElementById('copyModal').style.display = 'none';
-        
-        var userAgent = navigator.userAgent.toLowerCase();
-        var isAndroid = userAgent.indexOf("android") > -1;
-        var isIOS = userAgent.indexOf("iphone") > -1 || userAgent.indexOf("ipad") > -1;
-        
-        var cleanScheme = targetAppScheme.replace('://', '');
-        var appUrl = isAndroid 
-            ? "intent://#Intent;scheme=" + cleanScheme + ";package=" + targetAppPackage + ";end;" 
-            : targetAppScheme;
+    // 3. 확인 버튼 클릭 시 실행되는 복사 로직
+    function executeCopy(event) {
+        // 주의: event.preventDefault()를 쓰지 않습니다! 
+        // 쓰지 않아야 브라우저가 a 태그의 href(앱 호출)를 정상적인 사용자 클릭으로 인정하여 차단 없이 앱을 엽니다.
 
-        // 2. 동기식(Synchronous) 클립보드 복사를 먼저 실행하여 클릭 타이밍 딜레이 방지
+        // 화면 밖에서 조용히 텍스트 복사 실행
         var textArea = document.createElement("textarea");
         textArea.value = copyData;
         textArea.style.position = "fixed";
-        textArea.style.left = "-9999px"; // 화면 밖으로 숨김
+        textArea.style.left = "-9999px";
         document.body.appendChild(textArea);
         textArea.focus();
         textArea.select();
         try {
             document.execCommand('copy');
         } catch (err) {
-            console.log("자동 복사 실패");
+            console.log("복사 실패");
         }
         document.body.removeChild(textArea);
 
-        // 3. <a> 태그를 동적으로 생성하고 가상의 클릭(Click) 이벤트를 트리거
-        // 브라우저는 이를 스크립트 리다이렉트가 아닌 '사용자의 정상적인 링크 클릭'으로 판단하여 차단하지 않습니다.
-        var a = document.createElement('a');
-        a.href = appUrl;
-        a.style.display = 'none';
-        document.body.appendChild(a);
-        a.click(); // 강제 클릭 실행
-        document.body.removeChild(a);
-
-        // 4. 앱 미설치 체크 및 백그라운드 전환 감지
-        var clickedAt = +new Date();
-        var appOpened = false;
-        
-        function onAppOpened() { appOpened = true; }
-        window.addEventListener('blur', onAppOpened);
-        window.addEventListener('pagehide', onAppOpened);
-
+        // 앱이 열리는 동안 모달창이 바로 사라지면 href 작동이 캔슬될 수 있으므로 약간의 시차를 두고 모달을 닫습니다.
         setTimeout(function() {
-            window.removeEventListener('blur', onAppOpened);
-            window.removeEventListener('pagehide', onAppOpened);
-            
-            // 2초 내에 화면이 전환되지 않았다면 앱이 없는 것으로 간주
-            if (!appOpened && (+new Date() - clickedAt < 2500)) {
-                if (isAndroid) {
-                    window.location.href = "market://details?id=" + targetAppPackage;
-                } else if (isIOS) {
-                    alert("해당 뱅킹 앱이 기기에 설치되어 있지 않거나 열 수 없습니다.");
-                }
-            }
-        }, 2000); 
+            closeModal();
+        }, 800);
     }
 </script>
