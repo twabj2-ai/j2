@@ -269,52 +269,64 @@
     // 3. '확인' 버튼 클릭 시 클립보드 복사 후 앱 실행
     function executeCopyAndOpen() {
         if (navigator.clipboard && window.isSecureContext) {
-            navigator.clipboard.writeText(copyData).then(proceedToApp);
+            navigator.clipboard.writeText(copyData).then(proceedToApp).catch(function() {
+                fallbackCopy();
+            });
         } else {
-            var textArea = document.createElement("textarea");
-            textArea.value = copyData;
-            textArea.style.position = "fixed";
-            textArea.style.left = "-9999px";
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-            try {
-                document.execCommand('copy');
-                proceedToApp();
-            } catch (err) {
-                // 복사 실패 시에만 안내창을 띄워 수동 입력을 유도합니다.
-                alert('자동 복사에 실패했습니다. 계좌번호를 직접 입력해주세요.');
-                proceedToApp();
-            }
-            document.body.removeChild(textArea);
+            fallbackCopy();
         }
     }
 
-    // 4. 앱 실행 (알림창 제거)
+    // 구형 브라우저용 복사 방식 (에러 처리 통합)
+    function fallbackCopy() {
+        var textArea = document.createElement("textarea");
+        textArea.value = copyData;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-9999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            proceedToApp();
+        } catch (err) {
+            alert('자동 복사에 실패했습니다. 계좌번호를 직접 입력해주세요.');
+            proceedToApp();
+        }
+        document.body.removeChild(textArea);
+    }
+
+    // 4. 앱 실행 (안드로이드 Intent 및 iOS 화면 감지 적용)
     function proceedToApp() {
-        // 모달창 먼저 숨기기
+        // 모달창 숨기기
         document.getElementById('copyModal').style.display = 'none';
         
         var userAgent = navigator.userAgent.toLowerCase();
         var isAndroid = userAgent.indexOf("android") > -1;
         var isIOS = userAgent.indexOf("iphone") > -1 || userAgent.indexOf("ipad") > -1;
-        var clickedAt = +new Date();
         
-        // 뱅킹 앱 호출 (즉시 전환)
-        window.location.href = targetAppScheme;
+        // '://'를 제거하여 순수 scheme 이름만 추출 (예: 'kakaobank')
+        var cleanScheme = targetAppScheme.replace('://', '');
 
-        // 미설치 시 스토어 이동
-        setTimeout(function() {
-            if (+new Date() - clickedAt < 2000) {
-                if (isAndroid) {
-                    window.location.href = "market://details?id=" + targetAppPackage;
-                } else if (isIOS) {
-                    alert("해당 뱅킹 앱이 기기에 설치되어 있지 않습니다.");
+        if (isAndroid) {
+            // 안드로이드: Intent URI 방식 사용 (앱 실행 보장 및 미설치 시 플레이스토어 자동 이동 지원)
+            var intentUrl = "intent://#Intent;scheme=" + cleanScheme + ";package=" + targetAppPackage + ";end;";
+            window.location.href = intentUrl;
+        } else {
+            // iOS 및 기타: 기존 Scheme 방식 호출
+            var clickedAt = +new Date();
+            window.location.href = targetAppScheme;
+
+            // iOS 미설치 알림 방어 로직 (앱이 열려서 화면이 백그라운드로 가면 알림창을 띄우지 않음)
+            setTimeout(function() {
+                if (!document.hidden && document.visibilityState === 'visible') {
+                    if (+new Date() - clickedAt < 2000) {
+                        if (isIOS) {
+                            alert("해당 뱅킹 앱이 기기에 설치되어 있지 않거나 실행이 차단되었습니다.");
+                        }
+                    }
                 }
-            }
-        }, 1500);
+            }, 1500);
+        }
     }
 </script>
-
-</body>
-</html>
