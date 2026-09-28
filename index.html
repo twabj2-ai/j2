@@ -1,117 +1,320 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>복권구입 이체 안내</title>
-  <style>
-    body { 
-      text-align: center; 
-      font-family: 'Pretendard', -apple-system, sans-serif; 
-      padding: 80px 20px; 
-      margin: 0;
-    }
-    h2 {
-      font-size: 36px; 
-      margin-bottom: 60px;
-      line-height: 1.4;
-      word-break: keep-all;
-    }
-    .copy-btn { 
-      background-color: #ffd700; 
-      color: #000; 
-      font-size: 28px; 
-      font-weight: 900;
-      padding: 30px 20px; 
-      border: none; 
-      border-radius: 15px; 
-      cursor: pointer; 
-      width: 100%; 
-      max-width: 400px;
-      box-shadow: 0 6px 12px rgba(0,0,0,0.15); 
-    }
-    .copy-btn:active {
-      transform: scale(0.98); 
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>복권구매 결제 뱅킹앱 선택</title>
+    <style>
+        /* 페이퍼로지 폰트 적용 */
+        @font-face {
+            font-family: 'Paperlogy';
+            font-weight: 800;
+            src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-8ExtraBold.woff2') format('woff2');
+        }
+        @font-face {
+            font-family: 'Paperlogy';
+            font-weight: 500;
+            src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/2408-3@1.0/Paperlogy-5Medium.woff2') format('woff2');
+        }
 
-    /* 커스텀 팝업(모달) 디자인 추가 */
-    .modal-overlay {
-      display: none; /* 처음에는 숨겨둠 */
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.6); /* 반투명 검은 배경 */
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-    .modal-content {
-      background: #fff;
-      padding: 40px 20px 30px;
-      border-radius: 20px;
-      width: 80%;
-      max-width: 320px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    }
-    .modal-text {
-      font-size: 20px;
-      line-height: 1.6;
-      margin-bottom: 30px;
-      word-break: keep-all;
-    }
-    /* 빨간색 두꺼운 텍스트 강조용 클래스 */
-    .highlight-red {
-      color: #e50000; /* 눈에 잘 띄는 빨간색 */
-      font-weight: 900; /* 가장 두꺼운 굵기 */
-    }
-    .close-btn {
-      background-color: #333;
-      color: #fff;
-      font-size: 18px;
-      font-weight: bold;
-      padding: 15px;
-      border: none;
-      border-radius: 10px;
-      width: 100%;
-      cursor: pointer;
-    }
-    .close-btn:active {
-      background-color: #555;
-    }
-  </style>
+        body {
+            font-family: 'Paperlogy', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+        }
+
+        .mobile-container {
+            width: 100%;
+            max-width: 480px;
+            background-color: #ffffff;
+            height: 100vh;
+            padding: 15px 10px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .header h1 {
+            font-weight: 800;
+            font-size: 1.15rem;
+            color: #111;
+            margin: 0;
+            word-break: keep-all;
+        }
+
+        .header h1 span {
+            color: #d4af37;
+        }
+
+        .bank-container {
+            display: flex;
+            flex-wrap: wrap;
+            margin: -2px;
+            flex-grow: 1;
+            align-content: flex-start;
+        }
+
+        .btn-wrap {
+            padding: 2px;
+            box-sizing: border-box;
+        }
+
+        .w-3 { width: 33.333%; }
+        .w-2 { width: 50%; }
+
+        .bank-btn {
+            width: 100%;
+            height: 100%;
+            background-color: #fff;
+            border-style: solid;
+            border-width: 1.5px;
+            border-radius: 8px;
+            padding: 6px 2px;
+            text-align: center;
+            font-family: 'Paperlogy', sans-serif;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            -webkit-tap-highlight-color: transparent;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .bank-btn:active {
+            transform: scale(0.96);
+            background-color: #f9f9f9;
+        }
+
+        /* 분류별 테두리 컬러 */
+        .border-internet { border-color: #8A2BE2; }
+        .border-commercial { border-color: #1E90FF; }
+        .border-regional { border-color: #00BF2F; }
+        .border-mutual { border-color: #FF7F50; }
+
+        .bank-name {
+            font-size: 0.6rem;
+            color: #777;
+            margin-bottom: 2px;
+            font-weight: 500;
+        }
+        
+        .app-name {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: #222;
+        }
+
+        /* --- 모달(팝업창) 스타일 --- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 25px 20px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 320px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .modal-text {
+            font-family: 'Paperlogy', sans-serif;
+            font-weight: 500;
+            font-size: 1rem;
+            line-height: 1.5;
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 20px;
+            word-break: keep-all;
+        }
+
+        .account-highlight {
+            display: block;
+            color: #d4af37; /* 금색 포인트 */
+            font-weight: 800;
+            font-size: 1.2rem;
+            margin: 10px 0;
+        }
+
+        .confirm-btn {
+            background-color: #d4af37;
+            border: none;
+            border-radius: 8px;
+            padding: 15px 0;
+            font-family: 'Paperlogy', sans-serif;
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: #fff;
+            cursor: pointer;
+            width: 100%;
+            box-shadow: 0 4px 6px rgba(212, 175, 55, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .confirm-btn:active {
+            background-color: #b8962c;
+            transform: scale(0.97);
+        }
+    </style>
 </head>
 <body>
-  <h2>복권구입<br>이체 전용 계좌</h2>
-  
-  <button class="copy-btn" onclick="copyAccount()">계좌번호 복사하기</button>
 
-  <!-- 커스텀 팝업창 HTML 구조 -->
-  <div id="customModal" class="modal-overlay">
-    <div class="modal-content">
-      <div class="modal-text">
-        계좌번호가 복사되었습니다.<br><br>
-        사용하시는 <span class="highlight-red">뱅킹 앱</span>을<br>열어주세요.
-      </div>
-      <button class="close-btn" onclick="closeModal()">확인</button>
+<div class="mobile-container">
+    <div class="header">
+        <h1>송금에 사용할 내 <span>뱅킹앱</span>을 선택하세요</h1>
     </div>
-  </div>
 
-  <script>
-    function copyAccount() {
-      // 여기에 실제 사장님의 은행명과 계좌번호를 띄어쓰기 포함해 입력하세요 (예: 농협 123-4567-8901)
-      const account = "케이뱅크 100-301-168768"; 
-      
-      navigator.clipboard.writeText(account).then(() => {
-        // 복사 성공 시 기본 alert 대신 커스텀 팝업창을 띄움
-        document.getElementById('customModal').style.display = 'flex';
-      }).catch(err => {
-        alert("복사에 실패했습니다. 다시 시도해주세요.");
-      });
+    <!-- 뱅킹앱 리스트 -->
+    <div class="bank-container">
+        <!-- 1. 인터넷전문은행 -->
+        <div class="btn-wrap w-3"><button class="bank-btn border-internet" onclick="prepareTransfer('kakaobank://', 'com.kakaobank.channel')"><span class="bank-name">카카오뱅크</span><span class="app-name">카카오뱅크</span></button></div>
+        <div class="btn-wrap w-3"><button class="bank-btn border-internet" onclick="prepareTransfer('supertoss://', 'viva.republica.toss')"><span class="bank-name">토스뱅크</span><span class="app-name">토스 (Toss)</span></button></div>
+        <div class="btn-wrap w-3"><button class="bank-btn border-internet" onclick="prepareTransfer('kbank://', 'com.kbankwith.smartbank')"><span class="bank-name">케이뱅크</span><span class="app-name">케이뱅크</span></button></div>
+
+        <!-- 2. 시중은행 및 국책은행 -->
+        <div class="btn-wrap w-3"><button class="bank-btn border-commercial" onclick="prepareTransfer('kbbank://', 'com.kbstar.kbbank')"><span class="bank-name">KB국민은행</span><span class="app-name">KB스타뱅킹</span></button></div>
+        <div class="btn-wrap w-3"><button class="bank-btn border-commercial" onclick="prepareTransfer('hanabank://', 'com.hanabank.ebk.channel.android.hananbank')"><span class="bank-name">하나은행</span><span class="app-name">하나원큐</span></button></div>
+        <div class="btn-wrap w-3"><button class="bank-btn border-commercial" onclick="prepareTransfer('wooribank://', 'com.wooribank.smart.npib')"><span class="bank-name">우리은행</span><span class="app-name">우리WON뱅킹</span></button></div>
+        
+        <div class="btn-wrap w-2"><button class="bank-btn border-commercial" onclick="prepareTransfer('shinhan-sr://', 'com.shinhan.sbanking')"><span class="bank-name">신한은행</span><span class="app-name">SOL뱅크</span></button></div>
+        <div class="btn-wrap w-2"><button class="bank-btn border-commercial" onclick="prepareTransfer('shinhan-super://', 'com.shinhan.supersol')"><span class="bank-name">신한은행</span><span class="app-name">슈퍼SOL</span></button></div>
+
+        <div class="btn-wrap w-3"><button class="bank-btn border-commercial" onclick="prepareTransfer('nhallone://', 'nh.smart.allone')"><span class="bank-name">NH농협은행</span><span class="app-name">NH올원뱅크</span></button></div>
+        <div class="btn-wrap w-3"><button class="bank-btn border-commercial" onclick="prepareTransfer('nhbank://', 'nh.smart.banking')"><span class="bank-name">NH농협은행</span><span class="app-name">NH스마트뱅킹</span></button></div>
+        <div class="btn-wrap w-3"><button class="bank-btn border-commercial" onclick="prepareTransfer('nhcok://', 'nh.smart.cok')"><span class="bank-name">NH농협은행</span><span class="app-name">NH콕뱅크</span></button></div>
+
+        <div class="btn-wrap w-3"><button class="bank-btn border-commercial" onclick="prepareTransfer('ibkbank://', 'com.ibk.neobanking')"><span class="bank-name">IBK기업은행</span><span class="app-name">i-ONE Bank</span></button></div>
+        <div class="btn-wrap w-3"><button class="bank-btn border-commercial" onclick="prepareTransfer('scbank://', 'com.sc.pub.banking')"><span class="bank-name">제일은행</span><span class="app-name">SC 제일은행</span></button></div>
+        <div class="btn-wrap w-3"><button class="bank-btn border-commercial" onclick="prepareTransfer('citibank://', 'com.citibank.mobile.kr')"><span class="bank-name">씨티은행</span><span class="app-name">씨티모바일</span></button></div>
+
+        <div class="btn-wrap w-3"><button class="bank-btn border-commercial" onclick="prepareTransfer('suhyup://', 'com.suhyup.smartbank')"><span class="bank-name">Sh수협은행</span><span class="app-name">파트너뱅크</span></button></div>
+        <div class="btn-wrap w-3"><button class="bank-btn border-commercial" onclick="prepareTransfer('suhyup-sook://', 'com.suhyup.sook')"><span class="bank-name">Sh수협은행</span><span class="app-name">쑥뱅크</span></button></div>
+        <div class="btn-wrap w-3"><button class="bank-btn border-commercial" onclick="prepareTransfer('suhyup-hey://', 'com.suhyup.hey')"><span class="bank-name">Sh수협은행</span><span class="app-name">헤이뱅크</span></button></div>
+
+        <div class="btn-wrap w-3"><button class="bank-btn border-commercial" onclick="prepareTransfer('kdbbank://', 'com.kdb.smart')"><span class="bank-name">한국산업은행</span><span class="app-name">스마트KDB</span></button></div>
+
+        <!-- 3. 지방은행 -->
+        <div class="btn-wrap w-3"><button class="bank-btn border-regional" onclick="prepareTransfer('dgb://', 'com.dgb.smartbank')"><span class="bank-name">iM뱅크</span><span class="app-name">iM뱅크</span></button></div>
+        <div class="btn-wrap w-3"><button class="bank-btn border-regional" onclick="prepareTransfer('bsbank://', 'com.bsbank.smartbank')"><span class="bank-name">BNK부산은행</span><span class="app-name">모바일뱅킹</span></button></div>
+        <div class="btn-wrap w-3"><button class="bank-btn border-regional" onclick="prepareTransfer('knbank://', 'com.knbank.android.smartbank')"><span class="bank-name">BNK경남은행</span><span class="app-name">모바일뱅킹</span></button></div>
+        <div class="btn-wrap w-3"><button class="bank-btn border-regional" onclick="prepareTransfer('kjbank://', 'com.kjbank.smart')"><span class="bank-name">광주은행</span><span class="app-name">광주WA뱅크</span></button></div>
+        <div class="btn-wrap w-3"><button class="bank-btn border-regional" onclick="prepareTransfer('jbbank://', 'com.jbbank.smart')"><span class="bank-name">전북은행</span><span class="app-name">쏙뱅크</span></button></div>
+
+        <div class="btn-wrap w-2"><button class="bank-btn border-regional" onclick="prepareTransfer('jejubank://', 'com.jejubank.smartbank')"><span class="bank-name">제주은행</span><span class="app-name">제주SOL뱅크</span></button></div>
+        <div class="btn-wrap w-2"><button class="bank-btn border-regional" onclick="prepareTransfer('jejubank-j://', 'com.jejubank.jbank')"><span class="bank-name">제주은행</span><span class="app-name">J뱅크</span></button></div>
+
+        <!-- 4. 제2금융권 및 상호금융 -->
+        <div class="btn-wrap w-3"><button class="bank-btn border-mutual" onclick="prepareTransfer('epost://', 'com.epost.smart')"><span class="bank-name">우체국</span><span class="app-name">우체국 뱅킹</span></button></div>
+        <div class="btn-wrap w-3"><button class="bank-btn border-mutual" onclick="prepareTransfer('kfcc://', 'kr.co.kfcc.kfccsmbs')"><span class="bank-name">새마을금고</span><span class="app-name">MG더뱅킹</span></button></div>
+        <div class="btn-wrap w-3"><button class="bank-btn border-mutual" onclick="prepareTransfer('cuon://', 'kr.co.cu.onbank')"><span class="bank-name">신협</span><span class="app-name">신협ON뱅크</span></button></div>
+        <div class="btn-wrap w-3"><button class="bank-btn border-mutual" onclick="prepareTransfer('sbtalk://', 'kr.or.fsb.sbtalktalk')"><span class="bank-name">저축은행중앙회</span><span class="app-name">SB톡톡플러스</span></button></div>
+    </div>
+</div>
+
+<!-- 팝업 모달창 -->
+<div id="copyModal" class="modal-overlay" onclick="closeModal(event)">
+    <div class="modal-content">
+        <p class="modal-text">
+            복권구매 이체계좌 :
+            <span class="account-highlight">케이뱅크 100-301-168768 심재희</span>
+            로 송금할까요?
+        </p>
+        <button class="confirm-btn" onclick="executeCopyAndOpen()">확인</button>
+    </div>
+</div>
+
+<script>
+    let targetAppScheme = '';
+    let targetAppPackage = '';
+    
+    // 은행명과 계좌번호가 포함된 복사할 텍스트
+    const copyData = '케이뱅크 100301168768'; 
+
+    // 1. 뱅킹 앱 버튼 클릭 시 모달 띄우기
+    function prepareTransfer(scheme, androidPackageName) {
+        targetAppScheme = scheme;
+        targetAppPackage = androidPackageName;
+        document.getElementById('copyModal').style.display = 'flex';
     }
 
-    function closeModal() {
-      // 확인 버튼을 누르면 팝업창을 다시 숨김
-      document.getElementById('customModal').style.display = 'none';
+    // 2. 모달 바깥 배경 클릭 시 닫기
+    function closeModal(event) {
+        if (event.target.id === 'copyModal') {
+            document.getElementById('copyModal').style.display = 'none';
+        }
     }
-  </script>
+
+    // 3. '확인' 버튼 클릭 시 클립보드 복사 후 앱 실행
+    function executeCopyAndOpen() {
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(copyData).then(proceedToApp);
+        } else {
+            var textArea = document.createElement("textarea");
+            textArea.value = copyData;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-9999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                proceedToApp();
+            } catch (err) {
+                // 복사 실패 시에만 안내창을 띄워 수동 입력을 유도합니다.
+                alert('자동 복사에 실패했습니다. 계좌번호를 직접 입력해주세요.');
+                proceedToApp();
+            }
+            document.body.removeChild(textArea);
+        }
+    }
+
+    // 4. 앱 실행 (알림창 제거)
+    function proceedToApp() {
+        // 모달창 먼저 숨기기
+        document.getElementById('copyModal').style.display = 'none';
+        
+        var userAgent = navigator.userAgent.toLowerCase();
+        var isAndroid = userAgent.indexOf("android") > -1;
+        var isIOS = userAgent.indexOf("iphone") > -1 || userAgent.indexOf("ipad") > -1;
+        var clickedAt = +new Date();
+        
+        // 뱅킹 앱 호출 (즉시 전환)
+        window.location.href = targetAppScheme;
+
+        // 미설치 시 스토어 이동
+        setTimeout(function() {
+            if (+new Date() - clickedAt < 2000) {
+                if (isAndroid) {
+                    window.location.href = "market://details?id=" + targetAppPackage;
+                } else if (isIOS) {
+                    alert("해당 뱅킹 앱이 기기에 설치되어 있지 않습니다.");
+                }
+            }
+        }, 1500);
+    }
+</script>
+
 </body>
 </html>
