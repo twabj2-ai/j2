@@ -237,8 +237,8 @@
 <div id="copyModal" class="modal-overlay" onclick="closeModal(event)">
     <div class="modal-content">
         <p class="modal-text">
-            복권구매 이체계좌 :
-            <span class="account-highlight">케이뱅크 100-301-168768 심재희</span>
+            복권구매 이체계좌 
+            <span class="account-highlight">케이뱅크 100-301-168768 심x희</span>
             로 송금할까요?
         </p>
         <button class="confirm-btn" onclick="executeCopyAndOpen()">확인</button>
@@ -252,21 +252,18 @@
     // 은행명과 계좌번호가 포함된 복사할 텍스트
     const copyData = '케이뱅크 100301168768'; 
 
-    // 1. 뱅킹 앱 버튼 클릭 시 모달 띄우기
     function prepareTransfer(scheme, androidPackageName) {
         targetAppScheme = scheme;
         targetAppPackage = androidPackageName;
         document.getElementById('copyModal').style.display = 'flex';
     }
 
-    // 2. 모달 바깥 배경 클릭 시 닫기
     function closeModal(event) {
         if (event.target.id === 'copyModal') {
             document.getElementById('copyModal').style.display = 'none';
         }
     }
 
-    // 3. '확인' 버튼 클릭 시 클립보드 복사 후 앱 실행
     function executeCopyAndOpen() {
         if (navigator.clipboard && window.isSecureContext) {
             navigator.clipboard.writeText(copyData).then(proceedToApp).catch(function() {
@@ -277,7 +274,6 @@
         }
     }
 
-    // 구형 브라우저용 복사 방식 (에러 처리 통합)
     function fallbackCopy() {
         var textArea = document.createElement("textarea");
         textArea.value = copyData;
@@ -296,34 +292,43 @@
         document.body.removeChild(textArea);
     }
 
-    // 4. 앱 실행 (안드로이드 Intent 및 iOS 화면 감지 적용)
+    // [핵심 수정 부분] 앱 실행 로직
     function proceedToApp() {
-        // 모달창 숨기기
         document.getElementById('copyModal').style.display = 'none';
         
         var userAgent = navigator.userAgent.toLowerCase();
         var isAndroid = userAgent.indexOf("android") > -1;
         var isIOS = userAgent.indexOf("iphone") > -1 || userAgent.indexOf("ipad") > -1;
         
-        // '://'를 제거하여 순수 scheme 이름만 추출 (예: 'kakaobank')
-        var cleanScheme = targetAppScheme.replace('://', '');
-
         if (isAndroid) {
-            // 안드로이드: Intent URI 방식 사용 (앱 실행 보장 및 미설치 시 플레이스토어 자동 이동 지원)
-            var intentUrl = "intent://#Intent;scheme=" + cleanScheme + ";package=" + targetAppPackage + ";end;";
+            // 안드로이드 우회 로직: scheme(URI 주소)을 완전히 제거하고 패키지명으로만 강제 실행.
+            // 은행 앱의 딥링크 보안 차단을 우회하여, 바탕화면에서 앱을 켜는 것과 동일하게 동작합니다.
+            var intentUrl = "intent://#Intent;package=" + targetAppPackage + ";end;";
             window.location.href = intentUrl;
         } else {
-            // iOS 및 기타: 기존 Scheme 방식 호출
+            // iOS: 기존 방식 유지하되, 화면 숨김 감지(visibilitychange)를 강화하여 오작동 알림 방지
             var clickedAt = +new Date();
+            var appOpened = false;
+
+            // 앱이 열려서 웹 브라우저가 백그라운드로 가면 appOpened를 true로 변경
+            function onVisibilityChange() {
+                if (document.hidden || document.visibilityState === 'hidden') {
+                    appOpened = true;
+                }
+            }
+            document.addEventListener("visibilitychange", onVisibilityChange);
+            window.addEventListener("pagehide", function() { appOpened = true; });
+
+            // 앱 호출 시도
             window.location.href = targetAppScheme;
 
-            // iOS 미설치 알림 방어 로직 (앱이 열려서 화면이 백그라운드로 가면 알림창을 띄우지 않음)
+            // 1.5초 후 미설치 알림
             setTimeout(function() {
-                if (!document.hidden && document.visibilityState === 'visible') {
-                    if (+new Date() - clickedAt < 2000) {
-                        if (isIOS) {
-                            alert("해당 뱅킹 앱이 기기에 설치되어 있지 않거나 실행이 차단되었습니다.");
-                        }
+                document.removeEventListener("visibilitychange", onVisibilityChange);
+                // 화면이 숨겨진 적이 없고(앱이 열리지 않음), 1.5초가 정상적으로 지났을 때만 알림 발생
+                if (!appOpened && (+new Date() - clickedAt < 2000)) {
+                    if (isIOS) {
+                        alert("해당 뱅킹 앱을 열 수 없습니다. (앱 미설치 또는 애플 보안 정책 차단)");
                     }
                 }
             }, 1500);
