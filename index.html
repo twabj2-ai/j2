@@ -152,7 +152,7 @@
 
         .account-highlight {
             display: block;
-            color: #d4af37; /* 금색 포인트 */
+            color: #d4af37;
             font-weight: 800;
             font-size: 1.2rem;
             margin: 10px 0;
@@ -171,6 +171,9 @@
             width: 100%;
             box-shadow: 0 4px 6px rgba(212, 175, 55, 0.3);
             transition: all 0.2s ease;
+            display: block;
+            text-decoration: none;
+            box-sizing: border-box;
         }
 
         .confirm-btn:active {
@@ -186,26 +189,27 @@
         <h1>송금에 사용할 내 <span>뱅킹앱</span>을 선택하세요</h1>
     </div>
 
-    <!-- 뱅킹앱 리스트 -->
     <div class="bank-container">
         <!-- 1. 인터넷전문은행 -->
         <div class="btn-wrap w-3"><button class="bank-btn border-internet" onclick="prepareTransfer('kakaobank://', 'com.kakaobank.channel')"><span class="bank-name">카카오뱅크</span><span class="app-name">카카오뱅크</span></button></div>
         <div class="btn-wrap w-3"><button class="bank-btn border-internet" onclick="prepareTransfer('supertoss://', 'viva.republica.toss')"><span class="bank-name">토스뱅크</span><span class="app-name">토스 (Toss)</span></button></div>
-        <div class="btn-wrap w-3"><button class="bank-btn border-internet" onclick="prepareTransfer('kbank://', 'com.kbankwith.smartbank')"><span class="bank-name">케이뱅크</span><span class="app-name">케이뱅크</span></button></div>
+        
+        <!-- 케이뱅크: QR 주소 연동 변수 사용 -->
+        <div class="btn-wrap w-3"><button class="bank-btn border-internet" onclick="prepareTransfer(KBANK_QR_SCHEME, 'com.kbankwith.smartbank')"><span class="bank-name">케이뱅크</span><span class="app-name">케이뱅크</span></button></div>
 
         <!-- 2. 시중은행 및 국책은행 -->
         <div class="btn-wrap w-3"><button class="bank-btn border-commercial" onclick="prepareTransfer('kbbank://', 'com.kbstar.kbbank')"><span class="bank-name">KB국민은행</span><span class="app-name">KB스타뱅킹</span></button></div>
-        <div class="btn-wrap w-3"><button class="bank-btn border-commercial" onclick="prepareTransfer('hanabank://', 'com.hanabank.ebk.channel.android.hananbank')"><span class="bank-name">하나은행</span><span class="app-name">하나원큐</span></button></div>
+        <div class="btn-wrap w-3"><button class="bank-btn border-commercial" onclick="prepareTransfer('hanaez://', 'com.hanabank.ebk.channel.android.hananbank')"><span class="bank-name">하나은행</span><span class="app-name">하나원큐</span></button></div>
         <div class="btn-wrap w-3"><button class="bank-btn border-commercial" onclick="prepareTransfer('wooribank://', 'com.wooribank.smart.npib')"><span class="bank-name">우리은행</span><span class="app-name">우리WON뱅킹</span></button></div>
         
         <div class="btn-wrap w-2"><button class="bank-btn border-commercial" onclick="prepareTransfer('shinhan-sr://', 'com.shinhan.sbanking')"><span class="bank-name">신한은행</span><span class="app-name">SOL뱅크</span></button></div>
-        <div class="btn-wrap w-2"><button class="bank-btn border-commercial" onclick="prepareTransfer('shinhan-super://', 'com.shinhan.supersol')"><span class="bank-name">신한은행</span><span class="app-name">슈퍼SOL</span></button></div>
+        <div class="btn-wrap w-2"><button class="bank-btn border-commercial" onclick="prepareTransfer('shinhansupersol://', 'com.shinhan.supersol')"><span class="bank-name">신한은행</span><span class="app-name">슈퍼SOL</span></button></div>
 
         <div class="btn-wrap w-3"><button class="bank-btn border-commercial" onclick="prepareTransfer('nhallone://', 'nh.smart.allone')"><span class="bank-name">NH농협은행</span><span class="app-name">NH올원뱅크</span></button></div>
-        <div class="btn-wrap w-3"><button class="bank-btn border-commercial" onclick="prepareTransfer('nhbank://', 'nh.smart.banking')"><span class="bank-name">NH농협은행</span><span class="app-name">NH스마트뱅킹</span></button></div>
+        <div class="btn-wrap w-3"><button class="bank-btn border-commercial" onclick="prepareTransfer('newnhsmartbanking://', 'nh.smart.banking')"><span class="bank-name">NH농협은행</span><span class="app-name">NH스마트뱅킹</span></button></div>
         <div class="btn-wrap w-3"><button class="bank-btn border-commercial" onclick="prepareTransfer('nhcok://', 'nh.smart.cok')"><span class="bank-name">NH농협은행</span><span class="app-name">NH콕뱅크</span></button></div>
 
-        <div class="btn-wrap w-3"><button class="bank-btn border-commercial" onclick="prepareTransfer('ibkbank://', 'com.ibk.neobanking')"><span class="bank-name">IBK기업은행</span><span class="app-name">i-ONE Bank</span></button></div>
+        <div class="btn-wrap w-3"><button class="bank-btn border-commercial" onclick="prepareTransfer('ionebank://', 'com.ibk.android.ionebank')"><span class="bank-name">IBK기업은행</span><span class="app-name">i-ONE Bank</span></button></div>
         <div class="btn-wrap w-3"><button class="bank-btn border-commercial" onclick="prepareTransfer('scbank://', 'com.sc.pub.banking')"><span class="bank-name">제일은행</span><span class="app-name">SC 제일은행</span></button></div>
         <div class="btn-wrap w-3"><button class="bank-btn border-commercial" onclick="prepareTransfer('citibank://', 'com.citibank.mobile.kr')"><span class="bank-name">씨티은행</span><span class="app-name">씨티모바일</span></button></div>
 
@@ -216,11 +220,11 @@
         <div class="btn-wrap w-3"><button class="bank-btn border-commercial" onclick="prepareTransfer('kdbbank://', 'com.kdb.smart')"><span class="bank-name">한국산업은행</span><span class="app-name">스마트KDB</span></button></div>
 
         <!-- 3. 지방은행 -->
-        <div class="btn-wrap w-3"><button class="bank-btn border-regional" onclick="prepareTransfer('dgb://', 'com.dgb.smartbank')"><span class="bank-name">iM뱅크</span><span class="app-name">iM뱅크</span></button></div>
+        <div class="btn-wrap w-3"><button class="bank-btn border-regional" onclick="prepareTransfer('mbanking://', 'com.dgb.smartbank')"><span class="bank-name">iM뱅크</span><span class="app-name">iM뱅크</span></button></div>
         <div class="btn-wrap w-3"><button class="bank-btn border-regional" onclick="prepareTransfer('bsbank://', 'com.bsbank.smartbank')"><span class="bank-name">BNK부산은행</span><span class="app-name">모바일뱅킹</span></button></div>
         <div class="btn-wrap w-3"><button class="bank-btn border-regional" onclick="prepareTransfer('knbank://', 'com.knbank.android.smartbank')"><span class="bank-name">BNK경남은행</span><span class="app-name">모바일뱅킹</span></button></div>
         <div class="btn-wrap w-3"><button class="bank-btn border-regional" onclick="prepareTransfer('kjbank://', 'com.kjbank.smart')"><span class="bank-name">광주은행</span><span class="app-name">광주WA뱅크</span></button></div>
-        <div class="btn-wrap w-3"><button class="bank-btn border-regional" onclick="prepareTransfer('jbbank://', 'com.jbbank.smart')"><span class="bank-name">전북은행</span><span class="app-name">쏙뱅크</span></button></div>
+        <div class="btn-wrap w-3"><button class="bank-btn border-regional" onclick="prepareTransfer('jbpribanksign://', 'com.jbbank.smart')"><span class="bank-name">전북은행</span><span class="app-name">쏙뱅크</span></button></div>
 
         <div class="btn-wrap w-2"><button class="bank-btn border-regional" onclick="prepareTransfer('jejubank://', 'com.jejubank.smartbank')"><span class="bank-name">제주은행</span><span class="app-name">제주SOL뱅크</span></button></div>
         <div class="btn-wrap w-2"><button class="bank-btn border-regional" onclick="prepareTransfer('jejubank-j://', 'com.jejubank.jbank')"><span class="bank-name">제주은행</span><span class="app-name">J뱅크</span></button></div>
@@ -233,7 +237,7 @@
     </div>
 </div>
 
-<!-- 모달(팝업창) HTML 교체 -->
+<!-- 팝업 모달창 -->
 <div id="copyModal" class="modal-overlay">
     <div class="modal-content">
         <p class="modal-text">
@@ -241,46 +245,53 @@
             <span class="account-highlight">케이뱅크 100-301-168768 심재희</span>
             로 송금할까요?
         </p>
-        <!-- 버튼 대신 순수 하이퍼링크(a 태그) 사용 -->
-        <a id="confirmLink" href="#" class="confirm-btn" onclick="executeCopy(event)" style="display: block; text-decoration: none; box-sizing: border-box;">확인</a>
         
-        <!-- 앱이 안 열릴 경우를 대비한 수동 설치 안내 (자동 전환 대신 수동 선택) -->
+        <a id="confirmLink" href="#" class="confirm-btn" onclick="executeCopy(event)">확인</a>
+        
         <div style="margin-top: 15px; font-size: 0.8rem;">
-            <a id="storeLink" href="#" style="color: #666; text-decoration: underline;">앱이 실행되지 않나요? (설치하기)</a>
+            <a id="storeLink" href="#" style="color: #666; text-decoration: underline;">앱이 실행되지 않나요? (앱스토어)</a>
         </div>
         
-        <button onclick="closeModal()" style="margin-top: 10px; background: none; border: none; color: #999; text-decoration: underline; padding: 5px; cursor: pointer;">닫기</button>
+        <button onclick="closeModal()" style="margin-top: 10px; background: none; border: none; color: #999; text-decoration: underline; padding: 5px; cursor: pointer; font-family: 'Paperlogy';">취소</button>
     </div>
 </div>
 
 <script>
+    // =========================================================================
+    // 💡 스마트폰 카메라로 첨부하신 QR 코드를 비췄을 때 나타나는 웹 주소(URL)를 복사하여
+    // 아래 따옴표 안에 그대로 붙여넣어 주세요. (예: 'https://...' 또는 'kbank://...')
+    const KBANK_QR_SCHEME = '이곳에_QR_스캔_주소를_붙여넣으세요'; 
+    // =========================================================================
+
     const copyData = '케이뱅크 100301168768'; 
 
     function prepareTransfer(scheme, androidPackageName) {
         var userAgent = navigator.userAgent.toLowerCase();
         var isAndroid = userAgent.indexOf("android") > -1;
+        var isIOS = userAgent.indexOf("iphone") > -1 || userAgent.indexOf("ipad") > -1;
         
-        var cleanScheme = scheme.replace('://', '');
-        
-        // 1. 확인 버튼(a 태그)의 주소(href)에 뱅킹 앱 스킴을 미리 세팅해 둡니다.
-        var appUrl = isAndroid 
-            ? "intent://#Intent;scheme=" + cleanScheme + ";package=" + androidPackageName + ";end;" 
-            : scheme;
-            
-        // 2. 미설치 시 이동할 스토어 주소 세팅
-        var storeUrl = isAndroid 
-            ? "market://details?id=" + androidPackageName 
-            : "#"; // iOS는 앱마다 고유 ID가 달라 범용 링크 적용이 어려워 제외
+        var appUrl = "";
+        var storeUrl = "";
 
-        document.getElementById('confirmLink').href = appUrl;
-        
-        if (isAndroid) {
-            document.getElementById('storeLink').href = storeUrl;
-            document.getElementById('storeLink').style.display = 'inline-block';
+        // QR 코드가 http/https 로 시작하는 일반 웹 링크 송금 페이지일 경우의 예외 처리
+        if (scheme.startsWith('http://') || scheme.startsWith('https://')) {
+            appUrl = scheme;
+            storeUrl = scheme;
         } else {
-            document.getElementById('storeLink').style.display = 'none';
+            // 안드로이드는 스킴을 버리고 패키지명만으로 강제 호출
+            var cleanScheme = scheme.replace('://', '');
+            appUrl = isAndroid 
+                ? "intent://#Intent;package=" + androidPackageName + ";end;" 
+                : scheme;
+                
+            storeUrl = isAndroid 
+                ? "market://details?id=" + androidPackageName 
+                : (isIOS ? "https://apps.apple.com/kr/search?term=" + cleanScheme : "#");
         }
 
+        document.getElementById('confirmLink').href = appUrl;
+        document.getElementById('storeLink').href = storeUrl;
+        
         document.getElementById('copyModal').style.display = 'flex';
     }
 
@@ -288,12 +299,7 @@
         document.getElementById('copyModal').style.display = 'none';
     }
 
-    // 3. 확인 버튼 클릭 시 실행되는 복사 로직
     function executeCopy(event) {
-        // 주의: event.preventDefault()를 쓰지 않습니다! 
-        // 쓰지 않아야 브라우저가 a 태그의 href(앱 호출)를 정상적인 사용자 클릭으로 인정하여 차단 없이 앱을 엽니다.
-
-        // 화면 밖에서 조용히 텍스트 복사 실행
         var textArea = document.createElement("textarea");
         textArea.value = copyData;
         textArea.style.position = "fixed";
@@ -308,9 +314,11 @@
         }
         document.body.removeChild(textArea);
 
-        // 앱이 열리는 동안 모달창이 바로 사라지면 href 작동이 캔슬될 수 있으므로 약간의 시차를 두고 모달을 닫습니다.
         setTimeout(function() {
             closeModal();
         }, 800);
     }
 </script>
+
+</body>
+</html>
